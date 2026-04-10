@@ -88,36 +88,6 @@ export interface AboutData {
   batTeamImage?: string
 }
 
-// =============================================================================
-// Color helpers — map CMS color tokens to Tailwind class snippets
-// =============================================================================
-
-const RING_CLASS: Record<string, string> = {
-  amber: 'ring-amber-400',
-  indigo: 'ring-indigo-400',
-  violet: 'ring-violet-400',
-  rose: 'ring-rose-400',
-  emerald: 'ring-emerald-400',
-}
-
-const ACCENT_TEXT: Record<string, string> = {
-  amber: 'text-amber-600',
-  indigo: 'text-indigo-600',
-  violet: 'text-violet-600',
-  rose: 'text-rose-600',
-  emerald: 'text-emerald-600',
-}
-
-const GOAL_COLOR_MAP: Record<
-  string,
-  { bg: string; text: string; border: string; light: string }
-> = {
-  indigo: { bg: 'bg-indigo-500', text: 'text-indigo-600', border: 'border-indigo-200', light: 'bg-indigo-50' },
-  amber: { bg: 'bg-amber-500', text: 'text-amber-600', border: 'border-amber-200', light: 'bg-amber-50' },
-  rose: { bg: 'bg-rose-500', text: 'text-rose-600', border: 'border-rose-200', light: 'bg-rose-50' },
-  emerald: { bg: 'bg-emerald-500', text: 'text-emerald-600', border: 'border-emerald-200', light: 'bg-emerald-50' },
-  violet: { bg: 'bg-violet-500', text: 'text-violet-600', border: 'border-violet-200', light: 'bg-violet-50' },
-}
 
 // =============================================================================
 // HERO
@@ -416,7 +386,7 @@ function HistorySection({ presidents }: { presidents: PresidentData[] }) {
 }
 
 // =============================================================================
-// LEADERSHIP
+// LEADERSHIP — editorial grid, no decorative rings
 // =============================================================================
 function LeadershipSection({
   featured,
@@ -427,14 +397,33 @@ function LeadershipSection({
 }) {
   if ((!featured || featured.length === 0) && (!others || others.length === 0)) return null
 
+  const allOfficers = [
+    ...featured.map((o) => ({
+      name: o.person?.name ?? '',
+      avatar: o.person?.avatar,
+      title: o.displayTitle || o.titleEn || '',
+      titleEn: o.titleEn || '',
+      meta: o.meta,
+      big: true,
+    })),
+    ...others.map((o) => ({
+      name: o.person?.name ?? '',
+      avatar: o.person?.avatar,
+      title: o.displayTitle || '',
+      titleEn: o.titleEn || '',
+      meta: undefined as string | undefined,
+      big: false,
+    })),
+  ]
+
   return (
-    <section className="relative py-32 bg-white overflow-hidden">
-      <div className="max-w-5xl mx-auto px-6">
+    <section className="relative py-24 md:py-32 bg-white overflow-hidden">
+      <div className="max-w-[1200px] mx-auto px-6 md:px-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="mb-16 md:mb-20"
         >
           <span className="text-zinc-400 font-inter font-bold tracking-[0.4em] text-xs uppercase">
             Current Leadership
@@ -444,93 +433,68 @@ function LeadershipSection({
           </h2>
         </motion.div>
 
-        {/* Featured — up to 3 big photos */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-          {featured.map((officer, idx) => {
-            const ringCls = RING_CLASS[officer.ringColor || 'amber'] || RING_CLASS.amber
-            const accentCls = ACCENT_TEXT[officer.ringColor || 'amber'] || ACCENT_TEXT.amber
-            return (
-              <motion.div
-                key={`featured-${idx}`}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.1 }}
-                className="text-center"
-              >
-                <div
-                  className={cn(
-                    'relative w-48 h-48 mx-auto mb-6 rounded-full overflow-hidden ring-4 ring-offset-4',
-                    ringCls,
-                  )}
-                >
-                  {officer.person?.avatar && (
-                    <Image
-                      src={officer.person.avatar}
-                      alt={officer.person.name ?? ''}
-                      fill
-                      sizes="192px"
-                      className="object-cover object-top"
-                    />
+        {/* Officers as rows — name-first editorial feel */}
+        <div className="border-t border-zinc-900">
+          {allOfficers.map((officer, idx) => (
+            <motion.div
+              key={`officer-${idx}`}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.05 }}
+              className="group flex items-center gap-5 md:gap-8 py-5 md:py-6 border-b border-zinc-200 hover:bg-zinc-50/50 transition-colors"
+            >
+              {/* Photo — simple square, grayscale on idle */}
+              <div className={cn(
+                'relative shrink-0 overflow-hidden bg-zinc-100',
+                officer.big ? 'w-16 h-16 md:w-20 md:h-20' : 'w-12 h-12 md:w-16 md:h-16',
+              )}>
+                {officer.avatar && (
+                  <Image
+                    src={officer.avatar}
+                    alt={officer.name}
+                    fill
+                    sizes="80px"
+                    className="object-cover object-top grayscale group-hover:grayscale-0 transition-all duration-700"
+                  />
+                )}
+              </div>
+
+              {/* Name + title */}
+              <div className="flex-1 min-w-0">
+                <h3 className={cn(
+                  'font-noto-serif-tc font-black text-zinc-900 tracking-tight',
+                  officer.big ? 'text-2xl md:text-3xl' : 'text-lg md:text-xl',
+                )}>
+                  {officer.name}
+                </h3>
+                <div className="flex items-center gap-3 mt-1">
+                  <span className="text-[10px] tracking-[0.2em] uppercase text-zinc-500">
+                    {officer.titleEn}
+                  </span>
+                  {officer.meta && (
+                    <>
+                      <span className="h-px w-3 bg-zinc-300" />
+                      <span className="text-[10px] text-zinc-400">{officer.meta}</span>
+                    </>
                   )}
                 </div>
-                <span className={cn('text-xs font-bold tracking-wider uppercase', accentCls)}>
-                  {officer.displayTitle || officer.titleEn}
-                </span>
-                <h3 className="mt-2 text-2xl font-noto-serif-tc font-black text-zinc-900">
-                  {officer.person?.name}
-                </h3>
-                {officer.meta && <p className="text-zinc-500 text-sm mt-1">{officer.meta}</p>}
-              </motion.div>
-            )
-          })}
-        </div>
+              </div>
 
-        {/* Other officers — small list */}
-        {others && others.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="border-t border-zinc-100 pt-12"
-          >
-            <div className="flex flex-wrap justify-center gap-x-8 gap-y-6">
-              {others.map((officer, idx) => {
-                const accentCls =
-                  ACCENT_TEXT[officer.accentColor || 'emerald'] || ACCENT_TEXT.emerald
-                return (
-                  <div key={`other-${idx}`} className="text-center">
-                    <div className="w-24 h-24 mx-auto mb-3 rounded-full overflow-hidden bg-zinc-100 relative">
-                      {officer.person?.avatar && (
-                        <Image
-                          src={officer.person.avatar}
-                          alt={officer.person.name ?? ''}
-                          fill
-                          sizes="96px"
-                          className="object-cover object-top"
-                        />
-                      )}
-                    </div>
-                    <p className={cn('text-xs font-bold tracking-wider uppercase mb-1', accentCls)}>
-                      {officer.titleEn}
-                    </p>
-                    <p className="text-xl font-noto-serif-tc font-bold text-zinc-900">
-                      {officer.person?.name}
-                    </p>
-                  </div>
-                )
-              })}
-            </div>
-          </motion.div>
-        )}
+              {/* Chinese title on the right — desktop only */}
+              <span className="hidden md:block text-sm text-zinc-400 shrink-0">
+                {officer.title}
+              </span>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   )
 }
 
 // =============================================================================
-// MISSION
+// MISSION — text-only manifesto, no placeholder images
 // =============================================================================
 function MissionSection({
   eyebrow,
@@ -544,13 +508,13 @@ function MissionSection({
   tasks: string[]
 }) {
   return (
-    <section className="relative py-32 bg-zinc-50 overflow-hidden">
-      <div className="max-w-6xl mx-auto px-6">
+    <section className="relative py-24 md:py-32 bg-[#fafaf9] overflow-hidden">
+      <div className="max-w-[1200px] mx-auto px-6 md:px-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-20"
+          className="mb-16 md:mb-24"
         >
           <span className="text-zinc-400 font-inter font-bold tracking-[0.4em] text-xs uppercase">
             {eyebrow}
@@ -560,97 +524,62 @@ function MissionSection({
           </h2>
         </motion.div>
 
-        <div className="space-y-16 mb-24">
-          {goals.map((goal, index) => {
-            const colors = GOAL_COLOR_MAP[goal.color || 'indigo'] || GOAL_COLOR_MAP.indigo
-            const isEven = index % 2 === 0
+        {/* Goals as numbered manifesto rows */}
+        <div className="border-t border-zinc-300 mb-20 md:mb-28">
+          {goals.map((goal, index) => (
+            <motion.div
+              key={`${goal.title}-${index}`}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.06 }}
+              className="grid grid-cols-12 gap-4 md:gap-8 py-8 md:py-10 border-b border-zinc-200"
+            >
+              {/* Large index number */}
+              <div className="col-span-2 md:col-span-1">
+                <span className="font-noto-serif-tc text-4xl md:text-5xl font-black text-zinc-200">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+              </div>
 
-            return (
-              <motion.div
-                key={`${goal.title}-${index}`}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-100px' }}
-                transition={{ duration: 0.5 }}
-                className={cn(
-                  'grid grid-cols-1 lg:grid-cols-2 gap-8 items-center',
-                  !isEven && 'lg:grid-flow-dense',
-                )}
-              >
-                <div
-                  className={cn(
-                    'relative aspect-[4/3] rounded-3xl overflow-hidden',
-                    colors.light,
-                    'border-2',
-                    colors.border,
-                    !isEven && 'lg:col-start-2',
-                  )}
-                >
-                  {goal.image ? (
-                    <Image src={goal.image} alt={goal.title} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-center">
-                        <div
-                          className={cn(
-                            'w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center',
-                            colors.bg,
-                          )}
-                        >
-                          <span className="text-white text-2xl font-bold">{index + 1}</span>
-                        </div>
-                        <p className="text-zinc-400 text-sm">放置圖片</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div className={cn('flex flex-col justify-center', !isEven && 'lg:col-start-1 lg:row-start-1')}>
-                  <span className={cn('text-xs font-bold tracking-wider uppercase mb-3', colors.text)}>
-                    目標 {String(index + 1).padStart(2, '0')}
-                  </span>
-                  <h3 className="text-2xl md:text-3xl font-noto-serif-tc font-black text-zinc-900 mb-4">
-                    {goal.title}
-                  </h3>
-                  <p className="text-zinc-600 text-lg leading-relaxed mb-6">{goal.description}</p>
-                  <div className={cn('h-1 w-20 rounded-full', colors.bg)} />
-                </div>
-              </motion.div>
-            )
-          })}
+              {/* Title + description */}
+              <div className="col-span-10 md:col-span-11 flex flex-col md:flex-row md:items-baseline md:gap-12">
+                <h3 className="font-noto-serif-tc text-xl md:text-2xl font-black text-zinc-900 shrink-0 md:w-[240px] mb-2 md:mb-0">
+                  {goal.title}
+                </h3>
+                <p className="text-zinc-600 text-sm md:text-base leading-relaxed flex-1">
+                  {goal.description}
+                </p>
+              </div>
+            </motion.div>
+          ))}
         </div>
 
+        {/* Tasks — compact inline list, no card wrapper */}
         {tasks && tasks.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="relative bg-white rounded-3xl p-8 md:p-12 border border-zinc-100"
           >
-            <div className="text-center mb-10">
-              <span className="text-zinc-400 font-inter font-bold tracking-[0.3em] text-xs uppercase">
-                Our Tasks
+            <div className="flex items-center gap-4 mb-8">
+              <span className="h-px w-10 bg-zinc-900" />
+              <span className="text-[10px] tracking-[0.3em] uppercase text-zinc-500">
+                本會任務 — {String(tasks.length).padStart(2, '0')} Items
               </span>
-              <h3 className="mt-2 text-2xl md:text-3xl font-noto-serif-tc font-bold text-zinc-900">
-                本會任務
-              </h3>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
               {tasks.map((task, index) => (
-                <motion.div
+                <div
                   key={`${task}-${index}`}
-                  initial={{ opacity: 0, x: index % 2 === 0 ? -10 : 10 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.05 }}
-                  className="flex items-start gap-4 p-4 rounded-xl hover:bg-zinc-50 transition-colors"
+                  className="flex items-baseline gap-3 py-2"
                 >
-                  <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-zinc-900 text-white text-xs font-bold flex items-center justify-center">
+                  <span className="text-[10px] font-black text-zinc-300 tabular-nums w-5 shrink-0">
                     {String(index + 1).padStart(2, '0')}
                   </span>
-                  <p className="text-zinc-700 font-medium leading-relaxed pt-1">{task}</p>
-                </motion.div>
+                  <p className="text-zinc-700 text-sm leading-relaxed">{task}</p>
+                </div>
               ))}
             </div>
           </motion.div>
@@ -677,11 +606,10 @@ function AchievementsSection({
   domCerts: string[]
 }) {
   return (
-    <section className="relative py-32 bg-zinc-950 overflow-hidden">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-gradient-radial from-amber-500/10 via-transparent to-transparent rounded-full blur-3xl" />
-
-      <div className="max-w-6xl mx-auto px-6 relative z-10">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-24">
+    <section className="relative py-24 md:py-32 bg-zinc-950 overflow-hidden">
+      <div className="max-w-[1200px] mx-auto px-6 md:px-12 relative z-10">
+        {/* Stats — big serif numbers, no card chrome */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border-t border-b border-zinc-800 mb-20 md:mb-28">
           {stats.map((stat, index) => (
             <motion.div
               key={stat.label}
@@ -689,58 +617,59 @@ function AchievementsSection({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className="text-center p-6 rounded-3xl bg-white/5 border border-white/10"
+              className={cn(
+                'py-8 md:py-10 text-center',
+                index !== stats.length - 1 && 'md:border-r border-zinc-800',
+              )}
             >
-              <div className="text-4xl md:text-5xl font-noto-serif-tc font-black text-white mb-2">
+              <div className="text-5xl md:text-6xl lg:text-7xl font-noto-serif-tc font-black text-white leading-none mb-3">
                 <Counter value={stat.value} suffix={stat.suffix ?? ''} />
               </div>
-              <div className="text-white font-bold">{stat.label}</div>
-              {stat.descEn && <div className="text-zinc-500 text-xs mt-1">{stat.descEn}</div>}
+              <div className="text-white/90 text-sm font-bold">{stat.label}</div>
+              {stat.descEn && <div className="text-zinc-600 text-[10px] tracking-wider uppercase mt-1">{stat.descEn}</div>}
             </motion.div>
           ))}
         </div>
 
+        {/* Competitions — two columns, minimal borders */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mb-24"
+          className="mb-20 md:mb-28"
         >
-          <div className="text-center mb-12">
-            <span className="text-amber-400 font-inter font-bold tracking-[0.4em] text-xs uppercase">
+          <div className="flex items-center gap-4 mb-10">
+            <span className="h-px w-10 bg-amber-500" />
+            <span className="text-amber-400 font-inter font-bold tracking-[0.4em] text-[10px] uppercase">
               Competitions
             </span>
-            <h2 className="mt-4 text-3xl md:text-5xl font-noto-serif-tc font-black text-white">
-              競賽榮耀
-            </h2>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="p-8 rounded-3xl bg-gradient-to-br from-amber-500/10 to-amber-600/5 border border-amber-500/20">
-              <h3 className="text-xl font-bold text-amber-400 mb-6 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-amber-400" />
+          <div className="grid md:grid-cols-2 gap-12 md:gap-16">
+            {/* International */}
+            <div>
+              <h3 className="text-xl font-noto-serif-tc font-black text-white mb-6">
                 國際賽事成績
               </h3>
-              <div className="space-y-4">
+              <div className="border-t border-zinc-800">
                 {international.map((comp, i) => (
                   <div
                     key={`${comp.year}-${i}`}
                     className={cn(
-                      'flex items-center gap-4 p-4 rounded-2xl transition-all',
-                      comp.highlight
-                        ? 'bg-amber-500/20 border border-amber-500/30'
-                        : 'bg-white/5 border border-white/5',
+                      'flex items-baseline gap-4 py-3 border-b border-zinc-800/60',
+                      comp.highlight && 'text-amber-400',
                     )}
                   >
-                    <span
-                      className={cn(
-                        'text-2xl font-bold font-noto-serif-tc',
-                        comp.highlight ? 'text-amber-400' : 'text-zinc-400',
-                      )}
-                    >
+                    <span className={cn(
+                      'font-noto-serif-tc text-lg font-black tabular-nums shrink-0',
+                      comp.highlight ? 'text-amber-400' : 'text-zinc-500',
+                    )}>
                       {comp.year}
                     </span>
-                    <span className={cn('font-medium', comp.highlight ? 'text-white' : 'text-zinc-300')}>
+                    <span className={cn(
+                      'text-sm',
+                      comp.highlight ? 'text-amber-400 font-bold' : 'text-zinc-300',
+                    )}>
                       {comp.title}
                     </span>
                   </div>
@@ -748,18 +677,15 @@ function AchievementsSection({
               </div>
             </div>
 
-            <div className="p-8 rounded-3xl bg-white/5 border border-white/10">
-              <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-white" />
+            {/* Domestic */}
+            <div>
+              <h3 className="text-xl font-noto-serif-tc font-black text-white mb-6">
                 國內主辦賽事
               </h3>
-              <div className="flex flex-wrap gap-3">
-                {domestic.map((comp) => (
-                  <span
-                    key={comp}
-                    className="px-4 py-2 rounded-full bg-white/10 text-white/90 text-sm font-medium"
-                  >
-                    {comp}
+              <div className="flex flex-wrap gap-x-6 gap-y-2">
+                {domestic.map((comp, i) => (
+                  <span key={comp} className="text-zinc-400 text-sm">
+                    {comp}{i !== domestic.length - 1 && <span className="text-zinc-700 ml-6">/</span>}
                   </span>
                 ))}
               </div>
@@ -767,44 +693,39 @@ function AchievementsSection({
           </div>
         </motion.div>
 
+        {/* Certifications — two columns, simple lists */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <div className="text-center mb-12">
-            <span className="text-emerald-400 font-inter font-bold tracking-[0.4em] text-xs uppercase">
+          <div className="flex items-center gap-4 mb-4">
+            <span className="h-px w-10 bg-zinc-500" />
+            <span className="text-zinc-500 font-inter font-bold tracking-[0.4em] text-[10px] uppercase">
               Certifications
             </span>
-            <h2 className="mt-4 text-3xl md:text-5xl font-noto-serif-tc font-black text-white">
-              專業認證
-            </h2>
-            <p className="mt-4 text-zinc-400 max-w-xl mx-auto">
-              引進國際課程及認證，讓台灣學子考國際證照不用到國外去
-            </p>
           </div>
+          <h2 className="text-3xl md:text-4xl font-noto-serif-tc font-black text-white mb-3">
+            專業認證
+          </h2>
+          <p className="text-zinc-500 text-sm mb-10 max-w-lg">
+            引進國際課程及認證，讓台灣學子考國際證照不用到國外去
+          </p>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="p-8 rounded-3xl bg-gradient-to-br from-indigo-500/10 to-indigo-600/5 border border-indigo-500/20">
-              <h3 className="text-lg font-bold text-indigo-400 mb-6">國際認證</h3>
-              <ul className="space-y-3">
+          <div className="grid md:grid-cols-2 gap-12 md:gap-16">
+            <div>
+              <h3 className="text-[10px] tracking-[0.25em] uppercase text-zinc-500 mb-4">國際認證</h3>
+              <ul className="space-y-2 border-t border-zinc-800 pt-4">
                 {intlCerts.map((cert) => (
-                  <li key={cert} className="flex items-start gap-3 text-zinc-300">
-                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-indigo-400 flex-shrink-0" />
-                    {cert}
-                  </li>
+                  <li key={cert} className="text-zinc-300 text-sm py-1">{cert}</li>
                 ))}
               </ul>
             </div>
-
-            <div className="p-8 rounded-3xl bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 border border-emerald-500/20">
-              <h3 className="text-lg font-bold text-emerald-400 mb-6">教育部民間證照</h3>
-              <ul className="space-y-3">
+            <div>
+              <h3 className="text-[10px] tracking-[0.25em] uppercase text-zinc-500 mb-4">教育部民間證照</h3>
+              <ul className="space-y-2 border-t border-zinc-800 pt-4">
                 {domCerts.map((cert) => (
-                  <li key={cert} className="flex items-start gap-3 text-zinc-300">
-                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
-                    {cert}
-                  </li>
+                  <li key={cert} className="text-zinc-300 text-sm py-1">{cert}</li>
                 ))}
               </ul>
             </div>
@@ -832,65 +753,66 @@ function BATTeamSection({
   image?: string
 }) {
   return (
-    <section className="relative py-32 bg-white overflow-hidden">
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="relative"
-          >
-            <div className="aspect-[4/3] rounded-3xl bg-zinc-100 flex items-center justify-center overflow-hidden relative">
-              {image ? (
-                <Image src={image} alt={title} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
-              ) : (
-                <span className="text-zinc-400 text-sm">B.A.T 表演團隊照片</span>
-              )}
-            </div>
-            <div className="absolute -bottom-6 -right-6 w-32 h-32 rounded-2xl bg-amber-500 flex items-center justify-center">
-              <span className="text-white font-noto-serif-tc font-black text-4xl">B.A.T</span>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-          >
-            <span className="text-amber-500 font-inter font-bold tracking-[0.4em] text-xs uppercase">
+    <section className="relative py-24 md:py-32 bg-white overflow-hidden">
+      <div className="max-w-[1200px] mx-auto px-6 md:px-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <div className="flex items-center gap-4 mb-6">
+            <span className="h-px w-10 bg-zinc-900" />
+            <span className="text-[10px] tracking-[0.3em] uppercase text-zinc-500">
               Performance Team
             </span>
-            <h2 className="mt-4 text-3xl md:text-5xl font-noto-serif-tc font-black text-zinc-900">
-              {title}
-            </h2>
-            <p className="mt-6 text-zinc-600 leading-relaxed">{description}</p>
-            {members && members.length > 0 && (
-              <div className="mt-8 flex flex-wrap gap-3">
-                {members.map((m) => (
-                  <span
-                    key={m}
-                    className="px-4 py-2 rounded-full bg-zinc-100 text-zinc-700 font-medium"
-                  >
-                    {m}
-                  </span>
-                ))}
+          </div>
+
+          <div className="grid lg:grid-cols-12 gap-8 md:gap-12">
+            {/* Text — 5 cols */}
+            <div className="lg:col-span-5">
+              <h2 className="text-3xl md:text-5xl font-noto-serif-tc font-black text-zinc-900 mb-6">
+                {title}
+              </h2>
+              <p className="text-zinc-600 leading-[1.8] text-sm md:text-base mb-8">{description}</p>
+
+              {members && members.length > 0 && (
+                <div className="border-t border-zinc-200 pt-6">
+                  <div className="text-[10px] tracking-[0.25em] uppercase text-zinc-400 mb-3">
+                    Members
+                  </div>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1">
+                    {members.map((m, i) => (
+                      <span key={m} className="text-zinc-900 font-noto-serif-tc font-bold">
+                        {m}{i !== members.length - 1 && <span className="text-zinc-300 ml-4">/</span>}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {badges && badges.length > 0 && (
+                <div className="flex flex-wrap gap-x-4 gap-y-1 mt-4">
+                  {badges.map((b) => (
+                    <span key={b} className="text-xs text-amber-600">{b}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Image — 7 cols */}
+            <div className="lg:col-span-7">
+              <div className="relative aspect-[3/2] overflow-hidden bg-zinc-100">
+                {image ? (
+                  <Image src={image} alt={title} fill sizes="(max-width: 1024px) 100vw, 58vw" className="object-cover" />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-zinc-400 text-sm">B.A.T 表演團隊照片</span>
+                  </div>
+                )}
               </div>
-            )}
-            {badges && badges.length > 0 && (
-              <div className="mt-6 flex flex-wrap gap-2">
-                {badges.map((b) => (
-                  <span
-                    key={b}
-                    className="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-sm font-medium"
-                  >
-                    {b}
-                  </span>
-                ))}
-              </div>
-            )}
-          </motion.div>
-        </div>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </section>
   )
