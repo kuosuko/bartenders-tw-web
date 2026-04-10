@@ -10,6 +10,7 @@ import type { StructureResolver } from 'sanity/structure'
 export const structure: StructureResolver = (S) =>
   S.list()
     .title('內容')
+    .id('root')
     .items([
       // Singletons
       S.listItem()
