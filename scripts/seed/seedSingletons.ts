@@ -18,13 +18,15 @@ const LEGACY_PUBLIC = '/home/ubuntu/bartw/bartenders-tw/public'
 
 export async function seedSiteSettings(): Promise<void> {
   console.log('\n[siteSettings] seeding singleton')
-  const logo = await uploadImageAsset(`${LEGACY_PUBLIC}/logo.png`, '台灣調酒師協會 Logo')
+  const [logo, ogImage] = await Promise.all([
+    uploadImageAsset(`${LEGACY_PUBLIC}/logo.png`, '台灣調酒師協會 Logo'),
+    uploadImageAsset('/home/ubuntu/bartw/bartenders-tw-v2/public/og-image.png', 'OG Image 社群分享圖'),
+  ])
   const doc = {
     _id: 'siteSettings',
     _type: 'siteSettings',
-    siteName: '台灣調酒師協會',
-    siteDescription:
-      '中華民國國際調酒協會 (台灣調酒師) — 推廣專業調酒文化、舉辦國際賽事、培訓新世代調酒人才。',
+    siteName: '中華民國國際調酒協會',
+    siteDescription: '推動台灣調酒藝術接軌國際，培育卓越技藝人才。IBA 正式會員國。',
     logo,
     contactEmail: 'contact@bartenders.tw',
     contactPhone: '+886-2-0000-0000',
@@ -35,9 +37,9 @@ export async function seedSiteSettings(): Promise<void> {
     ],
     defaultSeo: {
       _type: 'seo',
-      metaTitle: '台灣調酒師協會',
-      metaDescription:
-        '推廣專業調酒文化、舉辦國際賽事、培訓新世代調酒人才的官方協會網站。',
+      metaTitle: 'BAT - 中華民國國際調酒協會',
+      metaDescription: '推動台灣調酒藝術接軌國際，培育卓越技藝人才。IBA 正式會員國。',
+      ogImage,
     },
   }
   await client.createOrReplace(doc)
