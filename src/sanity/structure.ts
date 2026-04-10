@@ -58,9 +58,11 @@ export const structure: StructureResolver = (S) =>
       // Taxonomies
       S.listItem()
         .title('分類與標籤')
+        .id('taxonomies')
         .child(
           S.list()
             .title('分類與標籤')
+            .id('taxonomies-list')
             .items([
               S.documentTypeListItem('category').title('最新消息分類'),
               S.documentTypeListItem('courseCategory').title('課程分類'),

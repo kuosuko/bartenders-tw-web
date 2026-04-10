@@ -32,7 +32,21 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const post = await getPost(slug).catch(() => null)
   if (!post) return {}
-  return { title: post.title, description: post.excerpt }
+  const ogImage = post.featuredImage
+    ? builder.image(post.featuredImage).width(1200).height(630).fit('crop').url()
+    : '/og-image.png'
+  return {
+    title: post.title,
+    description: post.excerpt,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt ?? '',
+      images: [{ url: ogImage, width: 1200, height: 630 }],
+      type: 'article' as const,
+      publishedTime: post.publishedAt,
+    },
+    twitter: { card: 'summary_large_image' as const },
+  }
 }
 
 export default async function NewsDetailPage({ params }: { params: Promise<{ slug: string }> }) {

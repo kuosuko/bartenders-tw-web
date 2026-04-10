@@ -2,9 +2,14 @@ import { sanityClient } from '@/sanity/client'
 import { AboutClient, type AboutData } from './AboutClient'
 
 export const metadata = {
-  title: '協會簡介 | 中華民國國際調酒協會',
-  description:
-    '中華民國國際調酒協會成立於民國83年，致力於推廣調酒藝術、培育專業人才，並與IBA國際調酒協會接軌。',
+  title: '協會簡介',
+  description: '中華民國國際調酒協會成立於民國83年，致力於推廣調酒藝術、培育專業人才，並與IBA國際調酒協會接軌。',
+  openGraph: {
+    title: '協會簡介 · BAT 台灣調酒師',
+    description: '中華民國國際調酒協會成立於民國83年，致力於推廣調酒藝術、培育專業人才，並與IBA國際調酒協會接軌。',
+    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
+  },
+  twitter: { card: 'summary_large_image' as const },
 }
 
 const ABOUT_QUERY = /* groq */ `

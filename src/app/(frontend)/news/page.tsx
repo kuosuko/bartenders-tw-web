@@ -6,7 +6,16 @@ import { BlurFade } from '@/components/ui/blur-fade'
 import Link from 'next/link'
 import Image from 'next/image'
 
-export const metadata = { title: '最新消息' }
+export const metadata = {
+  title: '最新消息',
+  description: '中華民國國際調酒協會最新活動、賽事及公告。',
+  openGraph: {
+    title: '最新消息 · BAT 台灣調酒師',
+    description: '中華民國國際調酒協會最新活動、賽事及公告。',
+    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
+  },
+  twitter: { card: 'summary_large_image' as const },
+}
 
 const builder = imageUrlBuilder(createClient({ projectId, dataset, apiVersion, useCdn: true }))
 

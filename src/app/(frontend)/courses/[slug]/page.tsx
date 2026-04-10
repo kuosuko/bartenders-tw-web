@@ -38,7 +38,19 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const course = await getCourse(slug).catch(() => null)
   if (!course) return {}
-  return { title: course.title, description: course.shortDescription }
+  const ogImage = course.featuredImage
+    ? builder.image(course.featuredImage).width(1200).height(630).fit('crop').url()
+    : '/og-image.png'
+  return {
+    title: course.title,
+    description: course.shortDescription,
+    openGraph: {
+      title: course.title,
+      description: course.shortDescription ?? '',
+      images: [{ url: ogImage, width: 1200, height: 630 }],
+    },
+    twitter: { card: 'summary_large_image' as const },
+  }
 }
 
 export default async function CourseDetailPage({ params }: { params: Promise<{ slug: string }> }) {

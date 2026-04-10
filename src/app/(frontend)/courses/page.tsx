@@ -7,7 +7,16 @@ import { ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 
-export const metadata = { title: '課程列表' }
+export const metadata = {
+  title: '課程列表',
+  description: '由國際 IBA 認證導師親授的專業調酒課程，涵蓋初階至高階認證。',
+  openGraph: {
+    title: '課程列表 · BAT 台灣調酒師',
+    description: '由國際 IBA 認證導師親授的專業調酒課程，涵蓋初階至高階認證。',
+    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
+  },
+  twitter: { card: 'summary_large_image' as const },
+}
 
 const builder = imageUrlBuilder(createClient({ projectId, dataset, apiVersion, useCdn: true }))
 
