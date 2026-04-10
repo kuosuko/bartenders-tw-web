@@ -455,7 +455,7 @@ function LeadershipSection({
                     alt={officer.name}
                     fill
                     sizes="80px"
-                    className="object-cover object-top grayscale group-hover:grayscale-0 transition-all duration-700"
+                    className="object-cover object-top"
                   />
                 )}
               </div>
