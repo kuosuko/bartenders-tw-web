@@ -35,7 +35,7 @@ async function getNewsPosts() {
       "category": category->name
     }`,
     {},
-    { next: { revalidate: false, tags: ['newsPost'] } },
+    { next: { revalidate: false } },
   )
 }
 

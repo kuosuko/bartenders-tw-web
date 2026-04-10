@@ -24,7 +24,7 @@ async function getPost(slug: string) {
       "author": author->{ name, "avatar": avatar.asset }
     }`,
     { slug },
-    { next: { revalidate: false, tags: ['newsPost', `newsPost:${slug}`] } },
+    { next: { revalidate: false } },
   )
 }
 

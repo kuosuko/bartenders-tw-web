@@ -30,7 +30,7 @@ async function getCourse(slug: string) {
       certification{ hasCertification, type, fee, testDetails, description }
     }`,
     { slug },
-    { next: { revalidate: false, tags: ['course', `course:${slug}`] } },
+    { next: { revalidate: false } },
   )
 }
 

@@ -57,7 +57,7 @@ async function getAboutPage(): Promise<AboutData | null> {
     {},
     // ISR: cache forever until revalidated by tag (via Sanity webhook).
     // No periodic refetch — nothing refetches unless aboutPage mutates.
-    { next: { revalidate: false, tags: ['aboutPage'] } },
+    { next: { revalidate: false } },
   )
 }
 

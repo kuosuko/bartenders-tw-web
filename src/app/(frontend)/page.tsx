@@ -26,7 +26,7 @@ async function getFeaturedCourse(): Promise<CourseItem | undefined> {
         certification
       }`,
       {},
-      { next: { revalidate: false, tags: ['course'] } },
+      { next: { revalidate: false } },
     )
     if (!doc) return MOCK_COURSES[0] as CourseItem
     return {

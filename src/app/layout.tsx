@@ -34,7 +34,7 @@ async function getSiteSettings() {
       defaultSeo{ metaTitle, metaDescription }
     }`,
     {},
-    { next: { revalidate: false, tags: ['siteSettings'] } },
+    { next: { revalidate: false } },
   ).catch(() => null)
 }
 

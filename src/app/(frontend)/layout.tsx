@@ -12,7 +12,7 @@ async function getNavigation() {
       footerNav[]{ heading, links[]{ label, link } }
     }`,
     {},
-    { next: { revalidate: false, tags: ['navigation'] } },
+    { next: { revalidate: false } },
   )
 }
 

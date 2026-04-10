@@ -59,7 +59,7 @@ async function getCourses(): Promise<CourseDoc[]> {
       certification{ hasCertification, type }
     }`,
     {},
-    { next: { revalidate: false, tags: ['course'] } },
+    { next: { revalidate: false } },
   )
 }
 
